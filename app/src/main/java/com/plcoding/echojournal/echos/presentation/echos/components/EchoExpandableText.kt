@@ -78,6 +78,8 @@ fun EchoExpandableText(
 
     Text(
         text = textToShow,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = if (isExpanded) 100 else collapsedMaxLine,
         modifier = modifier
             .fillMaxWidth()
