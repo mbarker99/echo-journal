@@ -32,6 +32,7 @@ import com.plcoding.echojournal.R
 import com.plcoding.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.plcoding.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.plcoding.echojournal.echos.presentation.echos.components.EchoFilterRow
+import com.plcoding.echojournal.echos.presentation.echos.components.EchoList
 import com.plcoding.echojournal.echos.presentation.echos.components.EchosEmptyBackground
 import com.plcoding.echojournal.echos.presentation.echos.components.EchosTopBar
 import com.plcoding.echojournal.echos.presentation.echos.components.RecordEchoFloatingActionButton
@@ -104,7 +105,14 @@ fun EchosScreen(
                     )
                 }
                 else -> {
-
+                    EchoList(
+                        sections = state.echoDaySections,
+                        onPlayClick = { onAction(EchosAction.OnPlayEchoClick(it)) },
+                        onPauseClick = { onAction(EchosAction.OnPauseEchoClick) },
+                        onTrackSizeAvailable = { trackSize ->
+                            onAction(EchosAction.OnTrackSizeAvailable(trackSize))
+                        }
+                    )
                 }
             }
         }
