@@ -4,6 +4,7 @@ import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.mbarker99.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
 import com.mbarker99.echojournal.core.presentation.util.UiText
+import com.mbarker99.echojournal.echos.presentation.echos.model.AudioCaptureMethod
 import com.mbarker99.echojournal.echos.presentation.echos.model.EchoDaySection
 import com.mbarker99.echojournal.echos.presentation.echos.model.EchoFilterChip
 import com.mbarker99.echojournal.echos.presentation.echos.model.MoodChipContent
@@ -12,6 +13,7 @@ import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 
 data class EchosState(
     val echos: Map<UiText, List<EchoUi>> = emptyMap(),
+    val currentCaptureMethod: AudioCaptureMethod? = null,
     val hasEchosRecorded: Boolean = false,
     val hasActiveTopicFilters: Boolean = false,
     val hasActiveMoodFilters: Boolean = false,
