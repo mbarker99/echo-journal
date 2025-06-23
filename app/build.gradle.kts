@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.plcoding.echojournal"
+    namespace = "com.mbarker99.echojournal"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.plcoding.echojournal"
+        applicationId = "com.mbarker99.echojournal"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
