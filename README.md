@@ -22,13 +22,14 @@ This app leverages modern Android development practices and tools:
 |------------------|--------------------------------|
 | Language         | Kotlin                         |
 | UI Toolkit       | Jetpack Compose                |
-| Architecture     | MVVM + Clean Architecture      |
+| Architecture     | MVI + Clean Architecture       |
 | State Management | `State`, `ViewModel`, `Flow`   |
 | Persistence      | Room Database                  |
-| Dependency DI    | Hilt                           |
+| Dependency DI    | Koin                           |
 | Navigation       | Jetpack Navigation Component   |
 | Build System     | Gradle (KTS)                   |
 | Testing          | JUnit, Espresso (planned)      |
+| Logging          | Timber                         |
 
 ---
 
@@ -37,6 +38,12 @@ This app leverages modern Android development practices and tools:
 *(Add screenshots here to showcase key parts of the UI)*
 
 ---
+
+## Other Features
+
+- Request audio permissions
+- Material design system
+- Android MediaRecorder library
 
 ## 🚀 Getting Started
 
