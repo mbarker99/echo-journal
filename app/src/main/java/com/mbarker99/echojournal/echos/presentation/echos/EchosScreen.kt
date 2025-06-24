@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +26,7 @@ import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.mbarker99.echojournal.core.presentation.util.ObserveAsEvents
+import com.mbarker99.echojournal.core.presentation.util.isAppInForeground
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoFilterRow
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoList
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoRecordingBottomSheet
@@ -69,6 +71,13 @@ fun EchosRoot(
                 Timber.d("Recording successful")
                 // TODO : add logic for completed recording
             }
+        }
+    }
+
+    val isAppInForeground by isAppInForeground()
+    LaunchedEffect(isAppInForeground, state.recordingState) {
+        if (state.recordingState == RecordingState.NORMAL_CAPTURE && !isAppInForeground) {
+            viewModel.onAction(EchosAction.OnPauseRecordingClick)
         }
     }
 
