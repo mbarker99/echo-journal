@@ -40,6 +40,7 @@ import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJourna
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.Microphone
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.Pause
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.buttonGradient
+import com.mbarker99.echojournal.core.presentation.designsystem.theme.buttonGradientPressed
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.primary90
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.primary95
 
@@ -139,43 +140,24 @@ fun SheetContent(
                 )
             }
 
-            val interactionSource = remember {
-                MutableInteractionSource()
-            }
-            val isPressed by interactionSource.collectIsPressedAsState()
-            Box(
-                modifier = Modifier
-                    .size(primaryBubbleSize)
-                    .background(
-                        color = if (isRecording) MaterialTheme.colorScheme.primary95 else Color.Transparent,
-                        shape = CircleShape
+            EchoBubbleFloatingActionButton(
+                showBubble = isRecording,
+                onClick = if (isRecording) {
+                    onCompleteRecording
+                } else {
+                    onResumeClick
+                },
+                icon = {
+                    Icon(
+                        imageVector = if (isRecording) Icons.Default.Check else Icons.Filled.Microphone,
+                        contentDescription = if (isRecording) stringResource(R.string.complete_recording) else stringResource(
+                            R.string.resume_recording
+                        ),
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
-                    .padding(10.dp)
-                    .background(
-                        color = if (isRecording) MaterialTheme.colorScheme.primary90 else Color.Transparent,
-                        shape = CircleShape
-                    )
-                    .padding(16.dp)
-                    .background(
-                        brush = MaterialTheme.colorScheme.buttonGradient,
-                        shape = CircleShape
-                    )
-                    .clip(CircleShape)
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = LocalIndication.current,
-                        onClick = if (isRecording) onCompleteRecording else onResumeClick
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = if (isRecording) Icons.Default.Check else Icons.Filled.Microphone,
-                    contentDescription = if (isRecording) stringResource(R.string.complete_recording) else stringResource(
-                        R.string.resume_recording
-                    ),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+                },
+                primaryButtonSize = 72.dp
+            )
 
             FilledIconButton(
                 onClick = if (isRecording) onPauseClick else onCompleteRecording,
@@ -202,7 +184,7 @@ private fun SheetContentPreview() {
     EchoJournalTheme {
         SheetContent(
             formattedRecordDuration = "00:03:45",
-            isRecording = false,
+            isRecording = true,
             onDismiss = { },
             onResumeClick = { },
             onPauseClick = { },
