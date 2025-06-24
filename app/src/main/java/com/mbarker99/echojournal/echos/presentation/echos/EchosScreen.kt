@@ -1,6 +1,7 @@
 package com.mbarker99.echojournal.echos.presentation.echos
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -20,19 +20,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.mbarker99.echojournal.core.presentation.util.ObserveAsEvents
 import com.mbarker99.echojournal.core.presentation.util.isAppInForeground
+import com.mbarker99.echojournal.echos.domain.recording.RecordingDetails
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoFilterRow
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoList
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoRecordingBottomSheet
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchosEmptyBackground
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchosTopBar
-import com.mbarker99.echojournal.echos.presentation.echos.components.RecordEchoFloatingActionButton
+import com.mbarker99.echojournal.echos.presentation.echos.components.EchoQuickRecordFloatingActionButton
 import com.mbarker99.echojournal.echos.presentation.echos.model.AudioCaptureMethod
 import com.mbarker99.echojournal.echos.presentation.echos.model.RecordingState
 import org.koin.androidx.compose.koinViewModel
@@ -40,6 +42,7 @@ import timber.log.Timber
 
 @Composable
 fun EchosRoot(
+    onNavigateToCreateEcho: (RecordingDetails) -> Unit,
     viewModel: EchosViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -68,8 +71,7 @@ fun EchosRoot(
             }
 
             is EchosEvent.OnCompleteRecording -> {
-                Timber.d("Recording successful")
-                // TODO : add logic for completed recording
+                onNavigateToCreateEcho(event.recordingDetails)
             }
         }
     }
@@ -92,10 +94,30 @@ fun EchosScreen(
     state: EchosState,
     onAction: (EchosAction) -> Unit,
 ) {
+    val context = LocalContext.current
     Scaffold(
         floatingActionButton = {
-            RecordEchoFloatingActionButton(
-                onClick = { onAction(EchosAction.OnFabClick) }
+            EchoQuickRecordFloatingActionButton(
+                onClick = { onAction(EchosAction.OnRecordFabClick) },
+                isQuickRecording = state.recordingState == RecordingState.QUICK_CAPTURE,
+                onLongPressReleased = { isCancelled ->
+                    if (isCancelled) {
+                        onAction(EchosAction.OnCancelRecordingClick)
+                    } else {
+                        onAction(EchosAction.OnCompleteRecordingClick)
+                    }
+                },
+                onLongPress = {
+                    val hasPermission = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.RECORD_AUDIO
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if (hasPermission) {
+                        onAction(EchosAction.OnRecordButtonLongClick)
+                    } else {
+                        onAction(EchosAction.OnRequestPermissionQuickRecording)
+                    }
+                }
             )
         },
         topBar = {
