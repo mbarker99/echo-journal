@@ -28,6 +28,7 @@ import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJourna
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.mbarker99.echojournal.core.presentation.util.ObserveAsEvents
 import com.mbarker99.echojournal.core.presentation.util.isAppInForeground
+import com.mbarker99.echojournal.echos.domain.recording.RecordingDetails
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoFilterRow
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoList
 import com.mbarker99.echojournal.echos.presentation.echos.components.EchoRecordingBottomSheet
@@ -41,6 +42,7 @@ import timber.log.Timber
 
 @Composable
 fun EchosRoot(
+    onNavigateToCreateEcho: (RecordingDetails) -> Unit,
     viewModel: EchosViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -69,8 +71,7 @@ fun EchosRoot(
             }
 
             is EchosEvent.OnCompleteRecording -> {
-                Timber.d("Recording successful")
-                // TODO : add logic for completed recording
+                onNavigateToCreateEcho(event.recordingDetails)
             }
         }
     }
