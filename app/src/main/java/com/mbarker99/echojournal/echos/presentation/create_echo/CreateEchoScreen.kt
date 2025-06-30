@@ -58,6 +58,7 @@ import com.mbarker99.echojournal.core.presentation.designsystem.theme.Secondary9
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.secondary70
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.secondary95
 import com.mbarker99.echojournal.echos.presentation.components.EchoMoodPlayer
+import com.mbarker99.echojournal.echos.presentation.create_echo.components.SelectMoodBottomSheet
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 
 @Composable
@@ -238,6 +239,21 @@ fun CreateEchoScreen(
                     modifier = Modifier.weight(1f)
                 )
             }
+        }
+
+        if (state.showMoodSelector) {
+            SelectMoodBottomSheet(
+                selectedMood = state.selectedMood,
+                onMoodClick = {
+                    onAction(CreateEchoAction.OnMoodClick(it))
+                },
+                onDismiss = {
+                    onAction(CreateEchoAction.OnDismissMoodSelector)
+                },
+                onConfirmClick = {
+                    onAction(CreateEchoAction.OnConfirmMood)
+                }
+            )
         }
     }
 }
