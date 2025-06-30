@@ -1,6 +1,5 @@
 package com.mbarker99.echojournal.echos.presentation.create_echo.components
 
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +27,6 @@ import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.buttons.PrimaryButton
 import com.mbarker99.echojournal.core.presentation.designsystem.buttons.SecondaryButton
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
-import com.mbarker99.echojournal.echos.presentation.create_echo.CreateEchoAction
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 
 @OptIn(ExperimentalMaterial3Api::class)

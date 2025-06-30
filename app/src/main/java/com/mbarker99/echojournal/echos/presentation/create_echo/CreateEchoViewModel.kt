@@ -2,11 +2,19 @@ package com.mbarker99.echojournal.echos.presentation.create_echo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mbarker99.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
+import com.mbarker99.echojournal.core.presentation.util.UiText
 import com.mbarker99.echojournal.echos.presentation.echos.EchosAction
 import com.mbarker99.echojournal.echos.presentation.echos.EchosState
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -19,6 +27,7 @@ class CreateEchoViewModel: ViewModel() {
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
+                observeAddTopicText()
                 hasLoadedInitialData = true
             }
         }
@@ -28,26 +37,94 @@ class CreateEchoViewModel: ViewModel() {
             initialValue = CreateEchoState()
         )
 
+    private fun observeAddTopicText() {
+        state
+            .map { it.addTopicText }
+            .distinctUntilChanged()
+            .debounce(300)
+            .onEach { query ->
+                _state.update {
+                    it.copy(
+                        showTopicSuggestions = query.isNotBlank() && query.trim() !in it.topics,
+                        searchResults = listOf("hello", "helloworld").asUnselectedItems()
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
     fun onAction(action: CreateEchoAction) {
         when (action) {
             CreateEchoAction.OnDismissMoodSelector -> onDismissMoodSelector()
             CreateEchoAction.OnSelectMoodClick -> onSelectMoodClick()
             is CreateEchoAction.OnMoodClick -> onMoodClick(action.mood)
             CreateEchoAction.OnConfirmMood -> onConfirmMood()
-            is CreateEchoAction.OnAddTopicTextChanged -> TODO()
-            CreateEchoAction.OnCancelClick -> TODO()
-            CreateEchoAction.OnCreateNewTopicClick -> TODO()
-            CreateEchoAction.OnDismissTopicSuggestions -> TODO()
-            CreateEchoAction.OnNavigateBackClick -> TODO()
+            is CreateEchoAction.OnAddTopicTextChanged -> onAddTopicTextChanged(action.text)
+            is CreateEchoAction.OnTopicClick -> onTopicClick(action.topic)
+            is CreateEchoAction.OnRemoveTopicClick -> onRemoveTopicClick(action.topic)
+            CreateEchoAction.OnDismissTopicSuggestions -> onDismissTopicSuggestions()
+            CreateEchoAction.OnDismissConfirmLeaveDialog -> onDismissConfirmLeaveDialog()
             is CreateEchoAction.OnNoteTextChanged -> TODO()
             CreateEchoAction.OnPauseAudioClick -> TODO()
             CreateEchoAction.OnPlayAudioClick -> TODO()
-            is CreateEchoAction.OnRemoveTopicClick -> TODO()
             CreateEchoAction.OnSaveClick -> TODO()
             is CreateEchoAction.OnTitleTextChanged -> TODO()
-            is CreateEchoAction.OnTopicClick -> TODO()
             is CreateEchoAction.OnTrackSizeAvailable -> TODO()
 
+            CreateEchoAction.OnCancelClick,
+            CreateEchoAction.OnNavigateBackClick,
+            CreateEchoAction.OnNavigateBack -> onShowConfirmLeaveDialog()
+        }
+    }
+
+    private fun onShowConfirmLeaveDialog() {
+        _state.update {
+            it.copy(
+                showConfirmLeaveDialog = true
+            )
+        }
+    }
+
+    private fun onDismissConfirmLeaveDialog() {
+        _state.update {
+            it.copy(
+                showConfirmLeaveDialog = false
+            )
+        }
+    }
+
+    private fun onDismissTopicSuggestions() {
+        _state.update {
+            it.copy(
+                showTopicSuggestions = false
+            )
+        }
+    }
+
+    private fun onRemoveTopicClick(topic: String) {
+        _state.update {
+            it.copy(
+                topics = it.topics - topic
+            )
+        }
+    }
+
+    private fun onTopicClick(topic: String) {
+        _state.update {
+            it.copy(
+                addTopicText = "",
+                topics = (it.topics + topic).distinct()
+            )
+        }
+    }
+
+    private fun onAddTopicTextChanged(text: String) {
+        _state.update {
+            it.copy(
+                addTopicText = text.filter {
+                    it.isLetterOrDigit()
+                }
+            )
         }
     }
 

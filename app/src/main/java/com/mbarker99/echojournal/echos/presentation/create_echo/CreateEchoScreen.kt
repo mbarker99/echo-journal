@@ -1,5 +1,6 @@
 package com.mbarker99.echojournal.echos.presentation.create_echo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -20,7 +20,8 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
@@ -30,6 +31,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -54,21 +55,23 @@ import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.buttons.PrimaryButton
 import com.mbarker99.echojournal.core.presentation.designsystem.buttons.SecondaryButton
 import com.mbarker99.echojournal.core.presentation.designsystem.textfields.TransparentTextField
-import com.mbarker99.echojournal.core.presentation.designsystem.theme.Secondary95
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.secondary70
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.secondary95
 import com.mbarker99.echojournal.echos.presentation.components.EchoMoodPlayer
+import com.mbarker99.echojournal.echos.presentation.create_echo.components.EchoTopicsRow
 import com.mbarker99.echojournal.echos.presentation.create_echo.components.SelectMoodBottomSheet
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 
 @Composable
 fun CreateEchoRoot(
+    onConfirmLeave: () -> Unit,
     viewModel: CreateEchoViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     CreateEchoScreen(
         state = state,
+        onConfirmLeave = onConfirmLeave,
         onAction = viewModel::onAction
     )
 }
@@ -77,8 +80,16 @@ fun CreateEchoRoot(
 @Composable
 fun CreateEchoScreen(
     state: CreateEchoState,
+    onConfirmLeave: () -> Unit,
     onAction: (CreateEchoAction) -> Unit
 ) {
+
+    BackHandler(
+        enabled = !state.showConfirmLeaveDialog
+    ) {
+        onAction(CreateEchoAction.OnNavigateBack)
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
@@ -130,7 +141,8 @@ fun CreateEchoScreen(
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondary95,
                             contentColor = MaterialTheme.colorScheme.secondary70
-                        )
+                        ),
+                        modifier = Modifier.size(32.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
@@ -180,7 +192,17 @@ fun CreateEchoScreen(
                 onTrackSizeAvailable = { onAction(CreateEchoAction.OnTrackSizeAvailable(it))},
             )
 
-            // TODO : insert topics flow row
+            EchoTopicsRow(
+                topics = state.topics,
+                addTopicText = state.addTopicText,
+                showTopicSuggestions = state.showTopicSuggestions,
+                showCreateTopicOption = state.showCreateTopicOption,
+                searchResults = state.searchResults,
+                onTopicClick = { onAction(CreateEchoAction.OnTopicClick(it)) },
+                onDismissTopicSuggestions = { onAction(CreateEchoAction.OnDismissTopicSuggestions) },
+                onRemoveTopicClick = { onAction(CreateEchoAction.OnRemoveTopicClick(it)) },
+                onAddTopicTextChange = { onAction(CreateEchoAction.OnAddTopicTextChanged(it)) },
+            )
 
             Row(
                 modifier = Modifier
@@ -255,6 +277,43 @@ fun CreateEchoScreen(
                 }
             )
         }
+
+        if (state.showConfirmLeaveDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    onAction(CreateEchoAction.OnDismissConfirmLeaveDialog)
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = onConfirmLeave
+                    ) {
+                        Text(
+                            text = stringResource(R.string.discard),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { onAction(CreateEchoAction.OnDismissConfirmLeaveDialog) }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel)
+                        )
+                    }
+                },
+                title = {
+                    Text(
+                        text = stringResource(R.string.discard_recording)
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(R.string.this_cannot_be_undone)
+                    )
+                }
+            )
+        }
     }
 }
 
@@ -267,7 +326,8 @@ private fun CreateEchoScreenPreview() {
                 mood = MoodUi.STRESSED,
                 canSaveEcho = true
             ),
-            onAction = {}
+            onAction = {},
+            onConfirmLeave = {},
         )
     }
 }

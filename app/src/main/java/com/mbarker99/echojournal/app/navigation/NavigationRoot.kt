@@ -30,7 +30,9 @@ fun NavigationRoot(
             )
         }
         composable<Route.CreateEcho> {
-            CreateEchoRoot()
+            CreateEchoRoot(
+                onConfirmLeave = navController::navigateUp
+            )
         }
     }
 }
