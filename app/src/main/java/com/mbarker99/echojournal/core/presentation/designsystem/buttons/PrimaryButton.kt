@@ -39,7 +39,7 @@ fun PrimaryButton(
                 MaterialTheme.colorScheme.outline
             }
         ),
-        modifier = Modifier.background(
+        modifier = modifier.background(
             brush = if(enabled) {
                 MaterialTheme.colorScheme.buttonGradient
             } else {
