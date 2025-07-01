@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
@@ -31,16 +32,14 @@ fun PrimaryButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        colors = ButtonDefaults.buttonColors (
+        colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
-            contentColor = if (enabled) {
-                MaterialTheme.colorScheme.onPrimary
-            } else  {
-                MaterialTheme.colorScheme.outline
-            }
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContentColor = MaterialTheme.colorScheme.outline,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         modifier = modifier.background(
-            brush = if(enabled) {
+            brush = if (enabled) {
                 MaterialTheme.colorScheme.buttonGradient
             } else {
                 SolidColor(MaterialTheme.colorScheme.surfaceVariant)
@@ -57,7 +56,7 @@ fun PrimaryButton(
             style = MaterialTheme.typography.bodyLarge,
             color = if (enabled) {
                 MaterialTheme.colorScheme.onPrimary
-            } else  {
+            } else {
                 MaterialTheme.colorScheme.outline
             }
         )
@@ -70,15 +69,15 @@ private fun PrimaryButtonPreview() {
     EchoJournalTheme {
         PrimaryButton(
             text = "Hello world!",
-            onClick = {  },
-            enabled = false,
+            onClick = { },
+            enabled = true,
             leadingIcon = {
-                Icon(
+                /*Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null
-                )
+                )*/
             },
         )
     }
-    
+
 }

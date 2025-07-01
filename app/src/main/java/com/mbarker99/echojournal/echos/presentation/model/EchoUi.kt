@@ -15,6 +15,7 @@ data class EchoUi(
     val amplitudes: List<Float>,
     val playbackCurrentDuration: Duration = Duration.ZERO,
     val playbackTotalDuration: Duration,
+    val audioFilePath: String,
     val playbackState: PlaybackState = PlaybackState.STOPPED
 ) {
     val formattedRecordedAt = recordedAt.toReadableTime()
