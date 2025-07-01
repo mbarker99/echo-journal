@@ -66,7 +66,7 @@ fun EchoMoodPlayer(
     }
 
     val formattedDurationText = remember(durationPlayed, totalPlaybackDuration) {
-        "${durationPlayed.formatMMSS()} / ${totalPlaybackDuration.formatMMSS()}"
+        "${durationPlayed.formatMMSS()}/${totalPlaybackDuration.formatMMSS()}"
     }
 
     val density = LocalDensity.current
