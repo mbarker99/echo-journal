@@ -1,13 +1,18 @@
+@file:OptIn(FlowPreview::class)
+
 package com.mbarker99.echojournal.echos.presentation.create_echo
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.mbarker99.echojournal.app.navigation.Route
 import com.mbarker99.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
-import com.mbarker99.echojournal.core.presentation.util.UiText
-import com.mbarker99.echojournal.echos.presentation.echos.EchosAction
-import com.mbarker99.echojournal.echos.presentation.echos.EchosState
+import com.mbarker99.echojournal.echos.domain.recording.RecordingStorage
+import com.mbarker99.echojournal.echos.presentation.echos.util.toRecordingDetails
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
@@ -16,12 +21,23 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class CreateEchoViewModel: ViewModel() {
+class CreateEchoViewModel(
+    private val savedStateHandle: SavedStateHandle,
+    private val recordingStorage: RecordingStorage
+): ViewModel() {
 
     private var hasLoadedInitialData = false
+
+    private val route = savedStateHandle.toRoute<Route.CreateEcho>()
+    private val recordingDetails = route.toRecordingDetails()
+
+    private val eventChannel = Channel<CreateEchoEvent>()
+    val events = eventChannel.receiveAsFlow()
 
     private val _state = MutableStateFlow(CreateEchoState())
     val state = _state
@@ -64,17 +80,43 @@ class CreateEchoViewModel: ViewModel() {
             is CreateEchoAction.OnRemoveTopicClick -> onRemoveTopicClick(action.topic)
             CreateEchoAction.OnDismissTopicSuggestions -> onDismissTopicSuggestions()
             CreateEchoAction.OnDismissConfirmLeaveDialog -> onDismissConfirmLeaveDialog()
-            is CreateEchoAction.OnNoteTextChanged -> TODO()
-            CreateEchoAction.OnPauseAudioClick -> TODO()
-            CreateEchoAction.OnPlayAudioClick -> TODO()
-            CreateEchoAction.OnSaveClick -> TODO()
-            is CreateEchoAction.OnTitleTextChanged -> TODO()
-            is CreateEchoAction.OnTrackSizeAvailable -> TODO()
-
+            is CreateEchoAction.OnNoteTextChanged -> { }
+            CreateEchoAction.OnPauseAudioClick -> {}
+            CreateEchoAction.OnPlayAudioClick -> {}
+            CreateEchoAction.OnSaveClick -> onSaveClick()
+            is CreateEchoAction.OnTitleTextChanged -> onTitleTextChanged(action.text)
+            is CreateEchoAction.OnTrackSizeAvailable -> {}
             CreateEchoAction.OnCancelClick,
             CreateEchoAction.OnNavigateBackClick,
             CreateEchoAction.OnNavigateBack -> onShowConfirmLeaveDialog()
         }
+    }
+
+    private fun onTitleTextChanged(text: String) {
+        _state.update {
+            it.copy(
+                titleText = text
+            )
+        }
+    }
+
+    private fun onSaveClick() {
+        if (recordingDetails.filePath == null) {
+            return
+        }
+
+        viewModelScope.launch {
+            val savedFilePath =  recordingStorage.savePersistently(
+                tempFilePath = recordingDetails.filePath
+            )
+            if (savedFilePath == null) {
+                eventChannel.send(CreateEchoEvent.FailedToSaveFile)
+                return@launch
+            }
+
+            // TODO : Echo
+        }
+
     }
 
     private fun onShowConfirmLeaveDialog() {

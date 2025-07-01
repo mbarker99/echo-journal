@@ -10,7 +10,7 @@ fun RecordingDetails.toCreateEchoRoute(): Route.CreateEcho {
             "Recording path can't be null"
         ),
         duration = this.duration.inWholeMilliseconds,
-        amplitudes = this.amplitudes.joinToString { ";" }
+        amplitudes = this.amplitudes.joinToString(";")
     )
 }
 

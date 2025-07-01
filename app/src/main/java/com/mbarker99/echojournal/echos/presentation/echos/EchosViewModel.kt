@@ -161,8 +161,7 @@ class EchosViewModel(
         voiceRecorder.stop()
         _state.update {
             it.copy(
-                recordingState = RecordingState.NOT_RECORDING,
-                currentCaptureMethod = null
+                recordingState = RecordingState.NOT_RECORDING
             )
         }
         val recordingDetails = voiceRecorder.recordingDetails.value
