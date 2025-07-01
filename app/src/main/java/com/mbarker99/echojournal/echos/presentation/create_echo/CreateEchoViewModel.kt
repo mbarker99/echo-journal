@@ -9,8 +9,11 @@ import androidx.navigation.toRoute
 import com.mbarker99.echojournal.app.navigation.Route
 import com.mbarker99.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
 import com.mbarker99.echojournal.echos.domain.recording.RecordingStorage
+import com.mbarker99.echojournal.echos.presentation.echos.model.TrackSizeInfo
+import com.mbarker99.echojournal.echos.presentation.echos.util.AmplitudeNormalizer
 import com.mbarker99.echojournal.echos.presentation.echos.util.toRecordingDetails
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,10 +88,27 @@ class CreateEchoViewModel(
             CreateEchoAction.OnPlayAudioClick -> {}
             CreateEchoAction.OnSaveClick -> onSaveClick()
             is CreateEchoAction.OnTitleTextChanged -> onTitleTextChanged(action.text)
-            is CreateEchoAction.OnTrackSizeAvailable -> {}
+            is CreateEchoAction.OnTrackSizeAvailable -> onTrackSizeAvailable(action.trackSizeInfo)
             CreateEchoAction.OnCancelClick,
             CreateEchoAction.OnNavigateBackClick,
             CreateEchoAction.OnNavigateBack -> onShowConfirmLeaveDialog()
+        }
+    }
+
+    private fun onTrackSizeAvailable(trackSizeInfo: TrackSizeInfo) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val finalAmplitudes = AmplitudeNormalizer.normalize(
+                sourceAmplitudes = recordingDetails.amplitudes,
+                trackWidth = trackSizeInfo.trackWidth,
+                barWidth = trackSizeInfo.barWidth,
+                spacing = trackSizeInfo.spacing,
+            )
+
+            _state.update {
+                it.copy(
+                    playbackAmplitudes = finalAmplitudes
+                )
+            }
         }
     }
 
