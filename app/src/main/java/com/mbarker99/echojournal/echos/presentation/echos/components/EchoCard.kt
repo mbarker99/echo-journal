@@ -70,7 +70,7 @@ fun EchoCard(
                 playerProgress = { echo.playbackRatio },
                 durationPlayed = echo.playbackCurrentDuration,
                 totalPlaybackDuration = echo.playbackTotalDuration,
-                powerRatios = echo.amplitudes,
+                amplitudes = echo.amplitudes,
                 onPlayClick = onPlayClick,
                 onPauseClick = onPauseClick,
                 onTrackSizeAvailable = onTrackSizeAvailable,

@@ -1,9 +1,11 @@
 package com.mbarker99.echojournal.echos.di
 
 import com.mbarker99.echojournal.echos.data.audio.AudioPlayerImpl
+import com.mbarker99.echojournal.echos.data.echo.EchoDataSourceImpl
 import com.mbarker99.echojournal.echos.data.recording.RecordingStorageImpl
 import com.mbarker99.echojournal.echos.data.recording.VoiceRecorderImpl
 import com.mbarker99.echojournal.echos.domain.audio.AudioPlayer
+import com.mbarker99.echojournal.echos.domain.echo.EchoDataSource
 import com.mbarker99.echojournal.echos.domain.recording.RecordingStorage
 import com.mbarker99.echojournal.echos.domain.recording.VoiceRecorder
 import com.mbarker99.echojournal.echos.presentation.create_echo.CreateEchoViewModel
@@ -17,6 +19,7 @@ val echoModule = module {
     singleOf(::VoiceRecorderImpl) bind VoiceRecorder::class
     singleOf(::RecordingStorageImpl) bind RecordingStorage::class
     singleOf(::AudioPlayerImpl) bind AudioPlayer::class
+    singleOf(::EchoDataSourceImpl) bind EchoDataSource::class
 
    viewModelOf(::EchosViewModel)
    viewModelOf(::CreateEchoViewModel)

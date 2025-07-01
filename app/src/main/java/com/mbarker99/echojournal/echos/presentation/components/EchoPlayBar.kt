@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
-import com.mbarker99.echojournal.echos.presentation.echos.model.TrackSizeInfo
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 import kotlin.random.Random
 
@@ -26,7 +25,7 @@ import kotlin.random.Random
 fun EchoPlayBar(
     amplitudeBarWidth: Dp,
     amplitudeBarSpacing: Dp,
-    powerRatios: List<Float>,
+    amplitudes: List<Float>,
     trackColor: Color,
     trackFillColor: Color,
     playerProgress: () -> Float,
@@ -40,7 +39,7 @@ fun EchoPlayBar(
 
         val clipPath = Path()
 
-        powerRatios.forEachIndexed { i, ratio ->
+        amplitudes.forEachIndexed { i, ratio ->
             val height = ratio * size.height
             val xOffset = i * (amplitudeBarSpacingPx + amplitudeBarWidthPx)
             val yTopStart = center.y - height / 2f
@@ -95,7 +94,7 @@ private fun EchoPlayBarPreview() {
         EchoPlayBar(
             amplitudeBarWidth = 3.dp ,
             amplitudeBarSpacing = 4.dp,
-            powerRatios = ratios,
+            amplitudes = ratios,
             trackColor = MoodUi.SAD.colorSet.desaturated,
             trackFillColor = MoodUi.SAD.colorSet.vivid,
             playerProgress = { 0.52f },

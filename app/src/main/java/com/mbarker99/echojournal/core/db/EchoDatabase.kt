@@ -2,12 +2,11 @@ package com.mbarker99.echojournal.core.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.mbarker99.echojournal.core.db.echo.EchoDao
 import com.mbarker99.echojournal.core.db.echo.EchoEntity
 import com.mbarker99.echojournal.core.db.echo.FloatListTypeConverter
-import com.mbarker99.echojournal.core.db.echo.MoodUiTypeConverter
+import com.mbarker99.echojournal.core.db.echo.MoodTypeConverter
 import com.mbarker99.echojournal.core.db.echo_topic_relation.EchoTopicCrossRef
 import com.mbarker99.echojournal.core.db.topic.TopicEntity
 
@@ -16,7 +15,7 @@ import com.mbarker99.echojournal.core.db.topic.TopicEntity
     entities = [EchoEntity::class, TopicEntity::class, EchoTopicCrossRef::class]
 )
 @TypeConverters(
-    MoodUiTypeConverter::class,
+    MoodTypeConverter::class,
     FloatListTypeConverter::class
 )
 abstract class EchoDatabase: RoomDatabase() {

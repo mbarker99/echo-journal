@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
@@ -203,7 +202,7 @@ fun CreateEchoScreen(
                 playerProgress = { state.durationPlayedRatio },
                 durationPlayed = state.durationPlayed,
                 totalPlaybackDuration = state.playbackTotalDuration,
-                powerRatios = state.playbackAmplitudes,
+                amplitudes = state.playbackAmplitudes,
                 onPlayClick = { onAction(CreateEchoAction.OnPlayAudioClick) },
                 onPauseClick = { onAction(CreateEchoAction.OnPauseAudioClick) },
                 onTrackSizeAvailable = { onAction(CreateEchoAction.OnTrackSizeAvailable(it))},
