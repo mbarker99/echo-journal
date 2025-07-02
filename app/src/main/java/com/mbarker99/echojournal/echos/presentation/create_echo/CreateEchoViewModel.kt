@@ -19,14 +19,21 @@ import com.mbarker99.echojournal.echos.presentation.echos.util.AmplitudeNormaliz
 import com.mbarker99.echojournal.echos.presentation.echos.util.toRecordingDetails
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -36,6 +43,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
+import kotlin.collections.map
+import kotlin.text.contains
 import kotlin.time.Duration
 
 class CreateEchoViewModel(
@@ -71,6 +80,7 @@ class CreateEchoViewModel(
         .onStart {
             if (!hasLoadedInitialData) {
                 observeAddTopicText()
+                observeSearchResults()
                 hasLoadedInitialData = true
             }
         }
@@ -89,6 +99,32 @@ class CreateEchoViewModel(
 
     private var durationJob: Job? = null
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeSearchResults() {
+        state
+            .distinctUntilChangedBy { it.addTopicText }
+            .map { it.addTopicText }
+            .debounce(300)
+            .flatMapLatest { query ->
+                if (query.isNotBlank()) {
+                    echoDataSource.searchTopics(query)
+                } else emptyFlow()
+            }
+            .onEach { filteredResults ->
+                _state.update {
+                    val searchText = it.addTopicText.trim()
+                    val isNewTopic = searchText !in filteredResults && searchText !in it.topics
+                            && searchText.isNotBlank()
+                    it.copy(
+                        searchResults = filteredResults.asUnselectedItems(),
+                        showTopicSuggestions = filteredResults.isNotEmpty() || isNewTopic,
+                        showCreateTopicOption = isNewTopic
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
     private fun observeAddTopicText() {
         state
             .map { it.addTopicText }
@@ -98,7 +134,7 @@ class CreateEchoViewModel(
                 _state.update {
                     it.copy(
                         showTopicSuggestions = query.isNotBlank() && query.trim() !in it.topics,
-                        searchResults = listOf("hello", "helloworld").asUnselectedItems()
+                        searchResults = it.searchResults
                     )
                 }
             }
