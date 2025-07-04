@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
-import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
@@ -38,11 +37,11 @@ import com.mbarker99.echojournal.echos.presentation.echos.components.EchoQuickRe
 import com.mbarker99.echojournal.echos.presentation.echos.model.AudioCaptureMethod
 import com.mbarker99.echojournal.echos.presentation.echos.model.RecordingState
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Composable
 fun EchosRoot(
     onNavigateToCreateEcho: (RecordingDetails) -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: EchosViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -85,7 +84,13 @@ fun EchosRoot(
 
     EchosScreen(
         state = state,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when (action) {
+                is EchosAction.OnSettingsClick -> onNavigateToSettings()
+                else -> Unit
+            }
+            viewModel.onAction(action)
+        }
     )
 }
 

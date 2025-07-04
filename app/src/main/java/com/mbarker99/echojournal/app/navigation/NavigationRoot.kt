@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import com.mbarker99.echojournal.echos.presentation.create_echo.CreateEchoRoot
 import com.mbarker99.echojournal.echos.presentation.echos.EchosRoot
 import com.mbarker99.echojournal.echos.presentation.echos.util.toCreateEchoRoute
+import com.mbarker99.echojournal.echos.presentation.settings.SettingsRoot
 
 @Composable
 fun NavigationRoot(
@@ -26,12 +27,19 @@ fun NavigationRoot(
             EchosRoot(
                 onNavigateToCreateEcho = { recordingDetails ->
                     navController.navigate(recordingDetails.toCreateEchoRoute())
-                }
+                },
+                onNavigateToSettings = { navController.navigate(Route.Settings) }
             )
         }
         composable<Route.CreateEcho> {
             CreateEchoRoot(
                 onConfirmLeave = navController::navigateUp
+            )
+        }
+
+        composable<Route.Settings> {
+            SettingsRoot(
+                onNavigateBack = navController::navigateUp
             )
         }
     }

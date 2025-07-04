@@ -12,4 +12,7 @@ sealed interface Route {
         val duration: Long,
         val amplitudes: String
     ): Route
+
+    @Serializable
+    data object Settings: Route
 }

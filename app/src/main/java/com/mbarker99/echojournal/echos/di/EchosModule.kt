@@ -10,6 +10,7 @@ import com.mbarker99.echojournal.echos.domain.recording.RecordingStorage
 import com.mbarker99.echojournal.echos.domain.recording.VoiceRecorder
 import com.mbarker99.echojournal.echos.presentation.create_echo.CreateEchoViewModel
 import com.mbarker99.echojournal.echos.presentation.echos.EchosViewModel
+import com.mbarker99.echojournal.echos.presentation.settings.SettingsViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -21,6 +22,7 @@ val echoModule = module {
     singleOf(::AudioPlayerImpl) bind AudioPlayer::class
     singleOf(::EchoDataSourceImpl) bind EchoDataSource::class
 
-   viewModelOf(::EchosViewModel)
-   viewModelOf(::CreateEchoViewModel)
+    viewModelOf(::EchosViewModel)
+    viewModelOf(::CreateEchoViewModel)
+    viewModelOf(::SettingsViewModel)
 }
