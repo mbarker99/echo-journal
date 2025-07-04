@@ -5,6 +5,7 @@ package com.mbarker99.echojournal.echos.presentation.create_echo
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.toRoute
 import com.mbarker99.echojournal.app.navigation.Route
 import com.mbarker99.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
@@ -13,6 +14,7 @@ import com.mbarker99.echojournal.echos.domain.echo.EchoDataSource
 import com.mbarker99.echojournal.echos.domain.echo.model.Echo
 import com.mbarker99.echojournal.echos.domain.echo.model.Mood
 import com.mbarker99.echojournal.echos.domain.recording.RecordingStorage
+import com.mbarker99.echojournal.echos.domain.settings.SettingsPreferences
 import com.mbarker99.echojournal.echos.presentation.echos.model.PlaybackState
 import com.mbarker99.echojournal.echos.presentation.echos.model.TrackSizeInfo
 import com.mbarker99.echojournal.echos.presentation.echos.util.AmplitudeNormalizer
@@ -40,6 +42,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -51,7 +54,8 @@ class CreateEchoViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val recordingStorage: RecordingStorage,
     private val audioPlayer: AudioPlayer,
-    private val echoDataSource: EchoDataSource
+    private val echoDataSource: EchoDataSource,
+    private val settingsPreferences: SettingsPreferences
 ) : ViewModel() {
 
     private var hasLoadedInitialData = false
@@ -80,6 +84,7 @@ class CreateEchoViewModel(
         .onStart {
             if (!hasLoadedInitialData) {
                 observeAddTopicText()
+                fetchDefaultSettings()
                 observeSearchResults()
                 hasLoadedInitialData = true
             }
@@ -98,6 +103,32 @@ class CreateEchoViewModel(
         )
 
     private var durationJob: Job? = null
+
+    private fun fetchDefaultSettings() {
+        settingsPreferences
+            .observeDefaultMood()
+            .take(1)
+            .onEach { defaultMood ->
+                _state.update {
+                    it.copy(
+                        selectedMood = MoodUi.valueOf(defaultMood.name)
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+
+        settingsPreferences
+            .observeDefaultTopics()
+            .take(1)
+            .onEach { defaultTopics ->
+                _state.update {
+                    it.copy(
+                        topics = defaultTopics
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeSearchResults() {
