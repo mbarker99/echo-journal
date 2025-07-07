@@ -109,9 +109,12 @@ class CreateEchoViewModel(
             .observeDefaultMood()
             .take(1)
             .onEach { defaultMood ->
+                val mood = MoodUi.valueOf(defaultMood.name)
                 _state.update {
                     it.copy(
-                        selectedMood = MoodUi.valueOf(defaultMood.name)
+                        selectedMood = mood,
+                        mood = mood,
+                        showMoodSelector = false
                     )
                 }
             }

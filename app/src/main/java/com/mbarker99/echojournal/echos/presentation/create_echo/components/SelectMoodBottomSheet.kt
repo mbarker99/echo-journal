@@ -27,6 +27,7 @@ import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.buttons.PrimaryButton
 import com.mbarker99.echojournal.core.presentation.designsystem.buttons.SecondaryButton
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
+import com.mbarker99.echojournal.echos.presentation.components.MoodIconWithCaption
 import com.mbarker99.echojournal.echos.presentation.model.MoodUi
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -29,6 +29,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mbarker99.echojournal.R
 import com.mbarker99.echojournal.core.presentation.designsystem.theme.bgGradient
+import com.mbarker99.echojournal.echos.domain.echo.model.Mood
+import com.mbarker99.echojournal.echos.presentation.model.MoodUi
+import com.mbarker99.echojournal.echos.presentation.settings.components.MoodCard
 
 
 @Composable
@@ -42,7 +45,7 @@ fun SettingsRoot(
         state = state,
         onAction = { action ->
             when (action) {
-                is SettingsAction.OnBackClick -> onNavigateBack
+                is SettingsAction.OnBackClick -> onNavigateBack()
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -92,7 +95,10 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
+            MoodCard(
+                selectedMood = state.selectedMood,
+                onMoodClick = { onAction(SettingsAction.OnMoodClick(it))}
+            )
         }
     }
 }
@@ -102,7 +108,9 @@ fun SettingsScreen(
 private fun SettingsScreenPreview() {
     EchoJournalTheme {
         SettingsScreen(
-            state = SettingsState(),
+            state = SettingsState(
+                selectedMood = MoodUi.SAD
+            ),
             onAction = {}
         )
     }
