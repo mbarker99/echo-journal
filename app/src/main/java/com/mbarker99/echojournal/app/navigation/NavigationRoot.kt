@@ -10,10 +10,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import com.mbarker99.echojournal.echos.presentation.create_echo.CreateEchoRoot
 import com.mbarker99.echojournal.echos.presentation.echos.EchosRoot
 import com.mbarker99.echojournal.echos.presentation.echos.util.toCreateEchoRoute
 import com.mbarker99.echojournal.echos.presentation.settings.SettingsRoot
+
+
+const val ACTION_CREATE_ECHO = "com.mbarker99.CREATE_ECHO"
 
 @Composable
 fun NavigationRoot(
@@ -21,9 +25,19 @@ fun NavigationRoot(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.Echos
+        startDestination = Route.Echos(
+            startRecording = false
+        )
     ) {
-        composable<Route.Echos> {
+        composable<Route.Echos>(
+            deepLinks = listOf(
+                navDeepLink<Route.Echos>(
+                    basePath = "https://echojournal.com/echos"
+                ) {
+                    action = ACTION_CREATE_ECHO
+                }
+            )
+        ) {
             EchosRoot(
                 onNavigateToCreateEcho = { recordingDetails ->
                     navController.navigate(recordingDetails.toCreateEchoRoute())
